@@ -1,5 +1,6 @@
 import './style.css';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // import gsap from 'gsap';
 
 // Cursor listener
@@ -27,10 +28,6 @@ const cube1 = new THREE.Mesh(
   new THREE.MeshBasicMaterial({ color: 'oxff0000' })
 );
 scene.add(cube1);
-// const cube2 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 'ox00ff00' }));
-// const cube3 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 'ox0000ff' }));
-// group.add(cube1);
-// group.add(cube1, cube2, cube3);
 
 // Sizes
 const sizes = {
@@ -49,7 +46,7 @@ const axesHelper = new THREE.AxesHelper(2);
 scene.add(axesHelper);
 
 // Render
-const canvas = document.querySelector('.webgl');
+const canvas = document.querySelector<HTMLElement>('.webgl');
 
 if (!canvas) {
   throw new Error('no canvas found');
@@ -60,17 +57,16 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.render(scene, camera);
 
+// Camera controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+
 // Animations
 // gsap.to(group.position, { x: 2, duration: 1, delay: 1 });
 // gsap.to(group.position, { x: 0, duration: 1, delay: 2 });
 
 const animate = () => {
-  // update camera
-  camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3;
-  camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3;
-  camera.position.y = -cursor.y * 2;
-  camera.lookAt(cube1.position);
-
+  controls.update();
   renderer.render(scene, camera);
 
   window.requestAnimationFrame(animate);
