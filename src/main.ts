@@ -1,7 +1,15 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-// import gsap from 'gsap';
+import gsap from 'gsap';
+import { GUI } from 'dat.gui';
+
+const parameters = {
+  color: '#f8ebeb',
+  spin: () => {
+    gsap.to(cube1.rotation, { duration: 2, y: cube1.rotation.y + 10 });
+  },
+};
 
 // Cursor listener
 const cursor = {
@@ -25,7 +33,7 @@ const scene = new THREE.Scene();
 
 const cube1 = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: 'lightgray' })
+  new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
 );
 scene.add(cube1);
 
@@ -86,4 +94,12 @@ const animate = () => {
 };
 animate(); //
 
-console.log(THREE);
+// Debug
+const gui = new GUI();
+gui.add(cube1.position, 'y', -3, 3, 0.01).name('cubeY');
+gui.add(cube1, 'visible');
+gui.add(cube1.material, 'wireframe');
+gui.addColor(parameters, 'color').onChange(() => {
+  cube1.material.color.set(parameters.color);
+});
+gui.add(parameters, 'spin');
