@@ -3,9 +3,14 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import gsap from 'gsap';
 import { GUI } from 'dat.gui';
+import baseColorTexture from './textures/Substance_Graph_BaseColor.jpg';
+import ambientOclusionTexture from './textures/Substance_Graph_AmbientOcclusion.jpg';
+import heightTexture from './textures/Substance_Graph_Height.png';
+import normalTexture from './textures/Substance_Graph_Normal.jpg';
+import roughnessTexture from './textures/Substance_Graph_Roughness.jpg';
 
 const parameters = {
-  color: '#f8ebeb',
+  color: '#ffffff',
   spin: () => {
     gsap.to(cube1.rotation, { duration: 2, y: cube1.rotation.y + 10 });
   },
@@ -23,17 +28,22 @@ window.addEventListener('mousemove', (event) => {
 
 const scene = new THREE.Scene();
 
-// const box = new THREE.BoxGeometry(1, 1, 1);
-// const material = new THREE.MeshBasicMaterial({ color: 'lightgrey' });
-// const mesh = new THREE.Mesh(box, material);
-// mesh.rotation.set(1, 0, 0);
+//Textures
+const loadingManager = new THREE.LoadingManager();
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const boxTextures = {
+  color: textureLoader.load(baseColorTexture),
+  ao: textureLoader.load(ambientOclusionTexture),
+  roughness: textureLoader.load(roughnessTexture),
+  height: textureLoader.load(heightTexture),
+  normal: textureLoader.load(normalTexture),
+};
 
-// const group = new THREE.Group();
-// scene.add(group);
+boxTextures.color.magFilter = THREE.NearestFilter;
 
 const cube1 = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: parameters.color, wireframe: true })
+  new THREE.MeshBasicMaterial({ map: boxTextures.color })
 );
 scene.add(cube1);
 
