@@ -1,6 +1,10 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import cartoonFont from './fonts/cartoon.json?url';
+import burnRubberFont from './fonts/burn_rubber.json?url';
 import gsap from 'gsap';
 import { GUI } from 'dat.gui';
 import baseColorTexture from './textures/Substance_Graph_BaseColor.jpg';
@@ -8,6 +12,7 @@ import ambientOclusionTexture from './textures/Substance_Graph_AmbientOcclusion.
 import heightTexture from './textures/Substance_Graph_Height.png';
 import normalTexture from './textures/Substance_Graph_Normal.jpg';
 import roughnessTexture from './textures/Substance_Graph_Roughness.jpg';
+import goldMatcapTexture from './textures/metal_matcap.png';
 
 const parameters = {
   color: '#ffffff',
@@ -39,7 +44,42 @@ const boxTextures = {
   normal: textureLoader.load(normalTexture),
 };
 
-boxTextures.color.magFilter = THREE.NearestFilter;
+//Fonts
+const fontLoader = new FontLoader(loadingManager);
+
+fontLoader.load(cartoonFont, (font) => {
+  const textGeometry = new TextGeometry('flat font with 0 height', {
+    font,
+    size: 0.4,
+    height: 0, // zero thickness
+    curveSegments: 12,
+    bevelEnabled: false,
+  });
+
+  const textMaterial = new THREE.MeshBasicMaterial();
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  textMesh.position.y = 1.5;
+  scene.add(textMesh);
+});
+
+fontLoader.load(burnRubberFont, (font) => {
+  const textGeometry = new TextGeometry('volumetric font', {
+    font,
+    size: 0.4,
+    height: 0.2,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.1,
+    bevelSize: 0.02,
+    bevelOffset: 0,
+    bevelSegments: 5,
+  });
+  const matCapTexture = textureLoader.load(goldMatcapTexture);
+  const textMaterial = new THREE.MeshMatcapMaterial({ matcap: matCapTexture });
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  textMesh.position.y = 1;
+  scene.add(textMesh);
+});
 
 const cube1 = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
