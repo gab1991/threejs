@@ -21,17 +21,54 @@ const parameters = {
   },
 };
 
-// Cursor listener
-const cursor = {
-  x: 0,
-  y: 0,
-};
-window.addEventListener('mousemove', (event) => {
-  cursor.x = event.clientX / sizes.width - 0.5;
-  cursor.y = event.clientY / sizes.height - 0.5;
-});
+// GUI
+const gui = new GUI();
 
 const scene = new THREE.Scene();
+
+// Lights
+// - ambient
+const ambientLightSettings = {
+  color: '#383434',
+  intensity: 0.5,
+};
+const ambientLight = new THREE.AmbientLight(
+  ambientLightSettings.color,
+  ambientLightSettings.intensity
+);
+scene.add(ambientLight);
+const ambientLightGui = gui.addFolder('ambientLight');
+ambientLightGui.open();
+ambientLightGui.add(ambientLightSettings, 'intensity').min(0).max(1).step(0.01);
+ambientLightGui.addColor(ambientLightSettings, 'color').onChange((newColor) => {
+  ambientLight.color.set(newColor);
+});
+
+// - directional
+const dirLightSettings = {
+  color: '#b8b8dd',
+  intensity: 0.5,
+};
+const dirLight = new THREE.DirectionalLight(dirLightSettings.color, dirLightSettings.intensity);
+dirLight.position.set(1, 0.25, 0);
+scene.add(dirLight);
+
+// - hepsphere
+const hemisphereLightSetting = {
+  skyColor: '#d62f2f',
+  floorColor: '#b8b8dd',
+  intensity: 0.5,
+};
+const hemSpehreLight = new THREE.HemisphereLight(
+  hemisphereLightSetting.skyColor,
+  hemisphereLightSetting.floorColor,
+  hemisphereLightSetting.intensity
+);
+scene.add(hemSpehreLight);
+
+// - dirlight helper
+const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 0.4);
+scene.add(dirLightHelper);
 
 //Textures
 const loadingManager = new THREE.LoadingManager();
@@ -81,9 +118,18 @@ fontLoader.load(burnRubberFont, (font) => {
   scene.add(textMesh);
 });
 
+// Geometries
+const floorMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(5, 5),
+  new THREE.MeshStandardMaterial({ roughness: 0.1 })
+);
+floorMesh.rotateX(-Math.PI / 2);
+floorMesh.position.y = -1;
+scene.add(floorMesh);
+
 const cube1 = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ map: boxTextures.color })
+  new THREE.MeshStandardMaterial({ map: boxTextures.color, roughness: 0.1 })
 );
 scene.add(cube1);
 
@@ -145,7 +191,6 @@ const animate = () => {
 animate(); //
 
 // Debug
-const gui = new GUI();
 gui.add(cube1.position, 'y', -3, 3, 0.01).name('cubeY');
 gui.add(cube1, 'visible');
 gui.add(cube1.material, 'wireframe');
