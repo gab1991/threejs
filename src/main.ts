@@ -50,7 +50,7 @@ const dirLightSettings = {
   intensity: 0.5,
 };
 const dirLight = new THREE.DirectionalLight(dirLightSettings.color, dirLightSettings.intensity);
-dirLight.position.set(1, 0.25, 0);
+dirLight.position.set(2, 2, 0);
 scene.add(dirLight);
 
 // - hepsphere
@@ -124,7 +124,7 @@ const floorMesh = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ roughness: 0.1 })
 );
 floorMesh.rotateX(-Math.PI / 2);
-floorMesh.position.y = -1;
+floorMesh.position.y = -0.5;
 scene.add(floorMesh);
 
 const cube1 = new THREE.Mesh(
@@ -132,6 +132,13 @@ const cube1 = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ map: boxTextures.color, roughness: 0.1 })
 );
 scene.add(cube1);
+
+const sphere = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5),
+  new THREE.MeshStandardMaterial({ color: 'gray' })
+);
+sphere.position.z = 1.3;
+scene.add(sphere);
 
 // Sizes
 const sizes = {
@@ -181,6 +188,25 @@ controls.enableDamping = true;
 // Animations
 // gsap.to(group.position, { x: 2, duration: 1, delay: 1 });
 // gsap.to(group.position, { x: 0, duration: 1, delay: 2 });
+
+// Shadows
+renderer.shadowMap.enabled = true;
+floorMesh.receiveShadow = true;
+cube1.castShadow = true;
+sphere.castShadow = true;
+
+dirLight.castShadow = true;
+// sizes has to fit scene only to produce better shadow maps
+dirLight.shadow.mapSize.set(1024, 1024);
+dirLight.shadow.camera.far = 6;
+dirLight.shadow.camera.bottom = -2;
+dirLight.shadow.camera.left = -3;
+dirLight.shadow.camera.right = 3;
+dirLight.shadow.camera.top = 3;
+dirLight.shadow.radius = 3; // edges blur
+
+const shadowCameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+scene.add(shadowCameraHelper);
 
 const animate = () => {
   controls.update();
